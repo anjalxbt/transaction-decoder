@@ -1,3 +1,9 @@
+#[allow(unused_variables)]
+fn read_version(transaction_hex:&str)->u32{
+    return 1;
+}
+
 fn main() {
-    println!("Hello, world!");
+    let version = read_version("adhfaweorhawer");
+    println!("version: {}!", version);
 }
