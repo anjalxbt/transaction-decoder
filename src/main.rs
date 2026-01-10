@@ -44,3 +44,28 @@ fn main() {
     println!("input length: {}!", input_length);
 
 }
+
+#[cfg(test)]
+mod test{
+    use super::*;
+
+    #[test]
+    fn test_read_compact_size(){
+        let mut bytes_slice = [1_u8].as_slice();
+        let compact_size = read_compact_size(&mut bytes_slice);
+        assert_eq!(compact_size, 1_u64);
+
+
+        let mut bytes_slice = [253_u8, 0, 1].as_slice();
+        let compact_size = read_compact_size(&mut bytes_slice);
+        assert_eq!(compact_size,256_u64);
+
+        let hex = "fd204e";
+        let decode = hex::decode(hex).unwrap();
+        let mut bytes_slice = decode.as_slice();
+        let compact_size = read_compact_size(&mut bytes_slice);
+        let expected_count = 20_000_u64;
+        assert_eq!(compact_size,expected_count);
+    }
+    
+}
