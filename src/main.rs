@@ -1,5 +1,12 @@
 use std::io::Read;
 
+struct Input{
+    txid:[u8; 32],
+    output_index:u32,
+    script:Vec<u8>,
+    sequence:u32
+}
+
 fn read_compact_size(transaction_bytes: &mut &[u8])->u64{
     let mut compact_size = [0_u8;1];
     transaction_bytes.read(&mut compact_size).unwrap();
@@ -50,12 +57,31 @@ fn main() {
     let transaction_bytes = hex::decode(transaction_hex).unwrap();
     let mut bytes_slice = transaction_bytes.as_slice();
     let version = read_32(&mut bytes_slice);
-
     let input_count = read_compact_size(&mut bytes_slice);
+    let mut inputs = vec![];
+
+    for _ in 0..input_count{
+        let txid = read_txid(&mut bytes_slice);
+        let output_index = read_32(&mut bytes_slice);
+        let script = read_script(&mut bytes_slice);
+        let sequence = read_32(&mut bytes_slice);
+
+        inputs.push(Input{
+            txid,
+            output_index,
+            script,
+            sequence
+        });
+    }
 
     println!("version: {}!", version);
-    println!("input length: {}!", input_count);
-
+    println!("input count: {}!", input_count);
+    for input in inputs{
+        println!("txid: {:?}", input.txid);
+        println!("output index: {}", input.output_index);
+        println!("script: {:?}", input.script);
+        println!("sequence: {}", input.sequence);
+    }
 }
 
 #[cfg(test)]
