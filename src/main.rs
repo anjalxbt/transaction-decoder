@@ -3,9 +3,9 @@ use std::io::Read;
 
 #[derive(Debug, Serialize)]
 struct Input {
-    txid: [u8; 32],
+    txid: String,
     output_index: u32,
-    script: Vec<u8>,
+    script: String,
     sequence: u32,
 }
 
@@ -40,17 +40,17 @@ fn read_32(transaction_bytes: &mut &[u8]) -> u32 {
     u32::from_le_bytes(buffer)
 }
 
-fn read_txid(transaction_bytes: &mut &[u8]) -> [u8; 32] {
+fn read_txid(transaction_bytes: &mut &[u8]) -> String {
     let mut buffer = [0; 32];
     transaction_bytes.read(&mut buffer).unwrap();
-    buffer
+    hex::encode(buffer)
 }
 
-fn read_script(transaction_bytes: &mut &[u8]) -> Vec<u8> {
+fn read_script(transaction_bytes: &mut &[u8]) -> String {
     let script_length = read_compact_size(transaction_bytes) as usize;
     let mut buffer = vec![0_u8; script_length];
     transaction_bytes.read(&mut buffer).unwrap();
-    buffer
+    hex::encode(buffer)
 }
 
 fn main() {
@@ -74,15 +74,9 @@ fn main() {
             sequence,
         });
     }
-
-    println!("version: {}!", version);
-    println!("input count: {}!", input_count);
-    for input in inputs {
-        println!("txid: {:?}", input.txid);
-        println!("output index: {}", input.output_index);
-        println!("script: {:?}", input.script);
-        println!("sequence: {}", input.sequence);
-    }
+    let json_inputs = serde_json::to_string_pretty(&inputs).unwrap();
+    println!("version: {}", version);
+    println!("input count: {}", json_inputs);
 }
 
 #[cfg(test)]
