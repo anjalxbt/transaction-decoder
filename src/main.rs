@@ -2,6 +2,12 @@ use serde::Serialize;
 use std::io::Read;
 
 #[derive(Debug, Serialize)]
+struct Transaction {
+    version: u32,
+    inputs: Vec<Input>,
+}
+
+#[derive(Debug, Serialize)]
 struct Input {
     txid: String,
     output_index: u32,
@@ -74,9 +80,11 @@ fn main() {
             sequence,
         });
     }
-    let json_inputs = serde_json::to_string_pretty(&inputs).unwrap();
-    println!("version: {}", version);
-    println!("input count: {}", json_inputs);
+    let transaction = Transaction { version, inputs };
+    println!(
+        "Transaction: {}",
+        serde_json::to_string_pretty(&transaction).unwrap()
+    );
 }
 
 #[cfg(test)]
