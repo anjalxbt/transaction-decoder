@@ -5,6 +5,7 @@ use std::io::Read;
 struct Transaction {
     version: u32,
     inputs: Vec<Input>,
+    outputs: Vec<Output>,
 }
 
 #[derive(Debug, Serialize)]
@@ -13,6 +14,12 @@ struct Input {
     output_index: u32,
     script: String,
     sequence: u32,
+}
+
+#[derive(Debug, Serialize)]
+struct Output {
+    amount: u64,
+    script_pubkey: String,
 }
 
 fn read_compact_size(transaction_bytes: &mut &[u8]) -> u64 {
@@ -44,6 +51,12 @@ fn read_32(transaction_bytes: &mut &[u8]) -> u32 {
     let mut buffer = [0; 4];
     transaction_bytes.read(&mut buffer).unwrap();
     u32::from_le_bytes(buffer)
+}
+
+fn read_64(transaction_bytes: &mut &[u8]) -> u64 {
+    let mut buffer = [0; 8];
+    transaction_bytes.read(&mut buffer).unwrap();
+    u64::from_le_bytes(buffer)
 }
 
 fn read_txid(transaction_bytes: &mut &[u8]) -> String {
@@ -80,7 +93,25 @@ fn main() {
             sequence,
         });
     }
-    let transaction = Transaction { version, inputs };
+
+    let output_count = read_compact_size(&mut bytes_slice);
+    let mut outputs = vec![];
+
+    for _ in 0..output_count {
+        let amount = read_64(&mut bytes_slice) / 100_000_000;
+        let script_pubkey = read_script(&mut bytes_slice);
+
+        outputs.push(Output {
+            amount,
+            script_pubkey,
+        });
+    }
+
+    let transaction = Transaction {
+        version,
+        inputs,
+        outputs,
+    };
     println!(
         "Transaction: {}",
         serde_json::to_string_pretty(&transaction).unwrap()
