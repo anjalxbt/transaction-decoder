@@ -36,7 +36,7 @@ fn read_32(transaction_bytes: &mut &[u8]) -> u32 {
 fn read_amount(transaction_bytes: &mut &[u8]) -> Amount {
     let mut buffer = [0; 8];
     transaction_bytes.read(&mut buffer).unwrap();
-    Amount(u64::from_le_bytes(buffer))
+    Amount::from_sat(u64::from_le_bytes(buffer))
 }
 
 fn read_txid(transaction_bytes: &mut &[u8]) -> String {
