@@ -5,6 +5,7 @@ pub struct Transaction {
     pub version: u32,
     pub inputs: Vec<Input>,
     pub outputs: Vec<Output>,
+    pub lock_time: u32,
 }
 
 #[derive(Debug, Serialize)]
