@@ -1,5 +1,5 @@
 use std::io::Read;
-use transaction::{Amount, Input, Output, Transaction};
+use transaction::{Amount, Input, Output, Transaction, Txid};
 mod transaction;
 use sha2::{Digest, Sha256};
 
@@ -53,7 +53,7 @@ fn read_script(transaction_bytes: &mut &[u8]) -> String {
     hex::encode(buffer)
 }
 
-fn hash_raw_transaction(raw_transaction: &[u8]) -> [u8; 32] {
+fn hash_raw_transaction(raw_transaction: &[u8]) -> Txid {
     let mut hasher = Sha256::new();
     hasher.update(&raw_transaction);
     let hash1 = hasher.finalize();
@@ -62,7 +62,7 @@ fn hash_raw_transaction(raw_transaction: &[u8]) -> [u8; 32] {
     hasher.update(hash1);
     let hash2 = hasher.finalize();
 
-    hash2.into()
+    Txid::from_bytes(hash2.into())
 }
 
 fn main() {
@@ -108,6 +108,7 @@ fn main() {
         inputs,
         outputs,
         lock_time,
+        transaction_id,
     };
     println!(
         "Transaction: {}",
