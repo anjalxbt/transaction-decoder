@@ -28,7 +28,7 @@ impl Serialize for Txid {
 
 #[derive(Debug, Serialize)]
 pub struct Input {
-    pub txid: String,
+    pub txid: Txid,
     pub output_index: u32,
     pub script: String,
     pub sequence: u32,
